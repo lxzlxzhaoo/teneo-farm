@@ -2,6 +2,7 @@ const WebSocket = require('ws');
 const fs = require('fs/promises');
 const HttpsProxyAgent = require('https-proxy-agent');
 const readline = require('readline');
+const SocksProxyAgent = require('socks-proxy-agent');
 
 async function readFile(filePath) {
     try {
@@ -34,7 +35,11 @@ class WebSocketClient {
 
         const options = {};
         if (this.proxy) {
-            options.agent = new HttpsProxyAgent(this.proxy);
+            if (this.proxy.startsWith('socks5://')) {
+                options.agent = new SocksProxyAgent(this.proxy);
+            } else {
+                options.agent = new HttpsProxyAgent(this.proxy);
+            }
         }
 
         this.socket = new WebSocket(wsUrl, options);
